@@ -60,7 +60,7 @@ The following sections describe the format for NoiseSocket handshake and transpo
 
 2.1. Handshake messages
 --------------------------------
- 
+
 All NoiseSocket handshake messages have the same structure:
 
  - negotiation_data_len (2 bytes)
@@ -73,7 +73,7 @@ integers, encoded in big-endian, that store the number of bytes for the followin
 `negotiation_data` and `noise_message` fields.
 
 2.2. Transport messages
-------------------------- 
+-------------------------
 
 All NoiseSocket transport messages have the same structure:
 
@@ -101,7 +101,7 @@ Upon receiving an initial NoiseSocket message, the responder has five options:
 
  * **Silent rejection**:  The responder closes the network connection.
 
- * **Explicit rejection**:  The responder sends a single NoiseSocket handshake message.  The `negotiation_data` field must be non-empty and contain an error message.  The `noise_message` field must be empty.  After sending this message, the responder closes the network connection. 
+ * **Explicit rejection**:  The responder sends a single NoiseSocket handshake message.  The `negotiation_data` field must be non-empty and contain an error message.  The `noise_message` field must be empty.  After sending this message, the responder closes the network connection.
 
  * **Acceptance**:  The responder sends a NoiseSocket handshake message containing the next handshake message in the initial Noise protocol.  The `negotiation_data` field must be empty.
 
@@ -111,9 +111,9 @@ Upon receiving an initial NoiseSocket message, the responder has five options:
 
 The initiator's first `negotiation_data` field must indicate the initial Noise protocol and what other Noise protocols the initiator can support.  How this is encoded is up to the application.
 
-If the responder's first `negotiation_data` field is empty, then the initial protocol was accepted.  If the field is non-empty, it must encode values that distinguish betwen the "explicit rejection", "fallback", and "reinitialization request" cases.  In the first case, the `negotiation_data` must encode an error message.  In the latter two cases, the `negotiation_data` must encode the Noise protocol the initiator should fallback to or reinitialize with.
+If the responder's first `negotiation_data` field is empty, then the initial protocol was accepted.  If the field is non-empty, it must encode values that distinguish between the "explicit rejection", "fallback", and "reinitialization request" cases.  In the first case, the `negotiation_data` must encode an error message.  In the latter two cases, the `negotiation_data` must encode the Noise protocol the initiator should fallback to or reinitialize with.
 
-When the initiator receives the first NoiseSocket response message, and for all later handshake messages received by both parties, the only options are silent rejection, explicit rejection, or acceptance. 
+When the initiator receives the first NoiseSocket response message, and for all later handshake messages received by both parties, the only options are silent rejection, explicit rejection, or acceptance.
 
 Example negotiation flows:
 
@@ -128,7 +128,7 @@ Example negotiation flows:
 
 4. Prologue
 ============
- 
+
 Noise protocols take a **prologue** input.  The prologue is cryptographically authenticated to make sure both parties have the same view of it.
 
 The prologue for the initial Noise protocol is set to the UTF-8 string "NoiseSocketInit1" followed by all bytes transmitted prior to the `noise_message_len`.  This consists of the following values concatenated together:
@@ -202,12 +202,21 @@ After the handshake is complete, both parties will call `WriteMessage` and `Read
     - `padded_len` is zero (no padding) if omitted
     - If `noise_message_len` would be less than `padded_len`, padding is added to make `noise_message_len` equal `padded_len`.
  * OUTPUT: transport_message
- 
+
 **`ReadMessage`**:
 
  * INPUT: transport_message
  * OUTPUT: message_body
 
+
+After the handshake is complete, either party may call `ExportSecret` to export a cryptographic secret derived from the Noise [@noise] shared secret key. Clients may use this exported secret to key other symmetric key protocols.
+
+**`ReadMessage`**:
+
+ * INPUT: export_label, export_context, export_len
+    - `export_label` and `export_context` may be empty (NULL) strings
+    - `export_len` must be a positive integer
+ * OUTPUT: derived key of length `export_len`
 
 6. IPR
 ========
