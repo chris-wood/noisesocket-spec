@@ -209,9 +209,9 @@ After the handshake is complete, both parties will call `WriteMessage` and `Read
  * OUTPUT: message_body
 
 
-After the handshake is complete, either party may call `ExportSecret` to export a cryptographic secret derived from the Noise [@noise] shared secret key. Clients may use this exported secret to key other symmetric key protocols.
+Additionally, either party may call `ExportSecret` to export a cryptographic secret derived from the Noise [@noise] shared secret key. Clients may use this exported secret to key other symmetric key protocols.
 
-**`ReadMessage`**:
+**`ExportSecret`**:
 
  * INPUT: export_label, export_context, export_len
     - `export_label` and `export_context` may be empty (NULL) strings
